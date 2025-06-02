@@ -16,34 +16,16 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var list<string>
+     * mass assignment
      */
     protected $fillable = [
         'name',
         'email',
-        'role',
+        'avatar',
+        'bio',
+        'role_id',
         'password',
     ];
-
-    public function user() 
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function category() 
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function comments() 
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function likes()
-    {
-        return $this->hasMany(Like::class);
-    }
-
 
     /**
      * The attributes that should be hidden for serialization.
@@ -66,5 +48,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function comments() 
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

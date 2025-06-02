@@ -12,6 +12,9 @@ import AuthLayout from '@/layouts/auth-layout';
 type RegisterForm = {
     name: string;
     email: string;
+    avatar: string;
+    bio: string;
+    role_id: number;
     password: string;
     password_confirmation: string;
 };
@@ -20,13 +23,16 @@ export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
+        avatar: '',
+        bio: '',
+        role_id: 0,
         password: '',
         password_confirmation: '',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('register'), {
+        post(route('users.store'), {
             onFinish: () => reset('password', 'password_confirmation'),
         });
     };
@@ -67,6 +73,48 @@ export default function Register() {
                             placeholder="email@example.com"
                         />
                         <InputError message={errors.email} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="avatar">Avatar URL</Label>
+                        <Input
+                            id="avatar"
+                            type="text"
+                            tabIndex={5}
+                            value={data.avatar}
+                            onChange={(e) => setData('avatar', e.target.value)}
+                            disabled={processing}
+                            placeholder="https://example.com/avatar.jpg"
+                        />
+                        <InputError message={errors.avatar} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="bio">Bio</Label>
+                        <Input
+                            id="bio"
+                            type="text"
+                            tabIndex={6}
+                            value={data.bio}
+                            onChange={(e) => setData('bio', e.target.value)}
+                            disabled={processing}
+                            placeholder="A few words about you"
+                        />
+                        <InputError message={errors.bio} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="role_id">Role ID</Label>
+                        <Input
+                            id="role_id"
+                            type="number"
+                            tabIndex={7}
+                            value={data.role_id}
+                            onChange={(e) => setData('role_id', Number(e.target.value))}
+                            disabled={processing}
+                            placeholder="1"
+                        />
+                        <InputError message={errors.role_id} />
                     </div>
 
                     <div className="grid gap-2">
