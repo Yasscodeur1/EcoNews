@@ -79,7 +79,7 @@ export default function Dashboard() {
                 <div className="mt-6 rounded-xl border border-muted p-6 dark:border-sidebar-border">
                     <h2 className="mb-4 text-xl font-semibold">Statistiques récentes</h2>
                     <div className="relative min-h-[300px] w-full">
-                        {/* <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" /> */}
+                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                     </div>
                 </div>
             </div>

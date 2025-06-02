@@ -1,9 +1,11 @@
 import { Link } from '@inertiajs/react'
+import AppNavbar from '@/components/app_navbar'
 
 export default function welcome() {
   return (
     <div>
-      <Link
+      {/* <AppNavbar/> */}
+      {/* <Link
         href="/login"
         style={{
           color: "white",
@@ -13,7 +15,7 @@ export default function welcome() {
         }}
       >
         Login
-      </Link>
+      </Link> */}
     </div>
   )
 }

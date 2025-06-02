@@ -5,13 +5,13 @@ export default function AppNavbar() {
 
     return (
         <div>
-            <nav className="relative bg-white shadow dark:bg-gray-800">
+            <nav className="fixed w-full bg-transparent/50 shadow shadow-amber-50">
                 <div className="container px-6 py-3 mx-auto md:flex">
                     <div className="flex items-center justify-between w-full">
                         <a href="#">
                             <img
-                                className="w-auto h-6 sm:h-7"
-                                src="https://merakiui.com/images/full-logo.svg"
+                                className="w-auto h-16 rounded-2xl"
+                                src="/Images/ChatGPT Image 28 mai 2025, 13_44_09 (1).png"
                                 alt="Logo"
                             />
                         </a>
@@ -63,7 +63,7 @@ export default function AppNavbar() {
                     <div
                         className={`${
                             isOpen ? 'block' : 'hidden'
-                        } absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 md:mt-0 md:p-0 md:top-0 md:relative md:flex md:items-center md:justify-between`}
+                        } absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-transparent/50 md:mt-0 md:p-0 md:top-0 md:relative md:flex md:items-center md:justify-between`}
                     >
                         <div className="flex flex-col px-2 -mx-4 md:flex-row md:mx-10 md:py-0">
                             <a
