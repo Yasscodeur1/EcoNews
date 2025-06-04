@@ -17,7 +17,7 @@ class ArticleController extends Controller
         $articles = Article::all();
 
         return inertia::render('articles/index', [
-            'articles' => $article
+            'articles' => $articles
         ]);
     }
 

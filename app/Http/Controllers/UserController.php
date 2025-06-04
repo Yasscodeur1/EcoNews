@@ -73,7 +73,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Inertia::render('articles/show');
     }
 
     /**

@@ -59,19 +59,19 @@ export default function Dashboard() {
                     <Card>
                         <CardContent className="p-6">
                             <h2 className="text-lg font-medium">Articles publiés</h2>
-                            <p className="mt-2 text-3xl font-bold text-primary">132</p>
+                            <p className="mt-2 text-3xl font-bold text-primary"></p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-6">
                             <h2 className="text-lg font-medium">Utilisateurs</h2>
-                            <p className="mt-2 text-3xl font-bold text-primary">58</p>
+                            <p className="mt-2 text-3xl font-bold text-primary"></p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-6">
                             <h2 className="text-lg font-medium">Commentaires</h2>
-                            <p className="mt-2 text-3xl font-bold text-primary">421</p>
+                            <p className="mt-2 text-3xl font-bold text-primary"></p>
                         </CardContent>
                     </Card>
                 </div>

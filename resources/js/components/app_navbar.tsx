@@ -2,6 +2,31 @@ import { useState } from 'react';
 
 export default function AppNavbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Fonction qui gère la recherche
+    const handleSearch = () => {
+        if (!searchTerm.trim()) return; // Pas de recherche vide
+
+        // Exemple d'appel API : envoyer la recherche
+        fetch(`/api/search?query=${encodeURIComponent(searchTerm)}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log('Résultats:', data);
+                // TODO: stocker / afficher les résultats (via state, context, ou navigation)
+            })
+            .catch(err => {
+                console.error('Erreur recherche:', err);
+            });
+    };
+
+    // Optionnel : lancer recherche au "Enter"
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
 
     return (
         <div>
@@ -108,6 +133,9 @@ export default function AppNavbar() {
                                 type="text"
                                 className="w-full py-2 pl-10 pr-4 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 focus:ring-blue-300"
                                 placeholder="Search"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
                         </div>
                     </div>
