@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->text('content');
-            $table->foreignId('user_id')->nullable()->constrained();
-            $table->foreignId('article_id')->nullable()->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('article_id')->constrained();
             $table->boolean('is_approved')->default(false);
             $table->timestamps();
         });

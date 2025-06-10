@@ -2,30 +2,31 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            RoleSeeder::class, // <-- continue à l'utiliser ici
+        ]);
 
-        User::factory()->create([
+        // Insérer un utilisateur de test
+        DB::table('users')->updateOrInsert([
+            'email' => 'test@example.com'
+        ], [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('roles')->insert([
-            ['name' => 'lecteur'],
-            ['name' => 'auteur'],
-            ['name' => 'webmaster'],
-            ['name' => 'admin'],
-        ]);
-
+        // Attache plusieurs rôles (par exemple admin et auteur)
+        $rolesToAttach = Role::whereIn('name', ['admin', 'auteur'])->get();
+        $user->roles()->sync($rolesToAttach->pluck('id'));
     }
+
 }

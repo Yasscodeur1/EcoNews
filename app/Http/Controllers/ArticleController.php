@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class ArticleController extends Controller
@@ -15,8 +18,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::all();
-
-        return inertia::render('articles/index', [
+        return Inertia::render('articles/index', [
             'articles' => $articles
         ]);
     }
@@ -26,7 +28,15 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        return inertia::render('articles/create');
+        $articles = Article::with(['category', 'likes', 'comments.user'])->get();
+        $categories = Category::all();
+        return Inertia::render('articles/create', [
+            'articles' => $articles,
+            'categories' => Category::all(),
+            'auth' => [
+                'user' => auth()->user(),
+            ],
+        ]);
     }
 
     /**
@@ -39,9 +49,8 @@ class ArticleController extends Controller
             'slug' => 'required|string|max:255|unique:articles,slug',
             'content' => 'required|string',
             'image_path' => 'nullable|string',
-            'user_id' => 'required|exists:users,id',
-            'category_id' => 'required|exists:categories,id',
             'status' => 'required|in:draft,published',
+            'category_id' => 'required|exists:categories,id',
             'is_featured' => 'nullable|boolean',
         ]);
         $article = Article::create([
@@ -50,21 +59,24 @@ class ArticleController extends Controller
             'content' => $request->content,
             'image_path' => $request->image_path,
             'status' => $request->status,
+            'category_id' => $request->category_id,
+            'is_featured' => $request->is_featured ?? false,
             'user_id' => auth()->id(),
         ]);
 
-        return response()->json([
-            'message' => 'Article created successfully.',
-            'article' => $article,
-        ], 201);
+        return redirect()->route('articles.index')->with('success', 'Article créé avec succès.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Article $article)
+    public function show($slug)
     {
-        return Inertia::render('articles/show');
+        $article = Article::with(['category', 'tags', 'user', 'likes', 'comments.user'])->where('slug', $slug)->firstOrFail();
+
+        return Inertia::render('articles/show', [
+            'article' => $article,
+        ]);
     }
 
     /**
@@ -87,7 +99,7 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
-        $article = Article::findOrFail($id);
+        // $article = Article::findOrFail($id);
 
         if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
             abort(403, "Tu ne peux modifier que tes propres articles.");

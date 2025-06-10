@@ -2,13 +2,36 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Like;
+use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
 class LikeController extends Controller
 {
+    public function toggle(Article $article)
+    {
+        $user = Auth::user();
+        // $article = Article::with(['likes.user'])->findOrFail($id);
+
+
+        // Vérifie si l'utilisateur a déjà liké
+        $like = $article->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            $like->delete(); // retire le like
+        } else {
+            $article->likes()->create([
+                'user_id' => $user->id,
+            ]);
+        }
+
+        return back(); 
+    }
+
     /**
      * Display a listing of the resource.
      */

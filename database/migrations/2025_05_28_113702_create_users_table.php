@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->text('bio')->nullable();
             $table->timestamp('last_login_at')->nullable();
-            $table->foreignId('role_id')->nullable()->constrained('roles')->default(1);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

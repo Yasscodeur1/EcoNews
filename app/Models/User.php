@@ -3,14 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -22,9 +24,9 @@ class User extends Authenticatable
         'name',
         'email',
         'avatar',
-        'bio',
-        'role_id',
+        'bio',  
         'password',
+        'is_admin'
     ];
 
     /**
@@ -42,15 +44,12 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
-    public function comments() 
+    public function comments()
     {
         return $this->hasMany(Comment::class);
     }
@@ -60,16 +59,16 @@ class User extends Authenticatable
         return $this->hasMany(Like::class);
     }
 
-    public function role()
+    public function roles(): BelongsToMany
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Role::class);
     }
-    public function hasRole($role)
+    public function hasRole($roleName): bool
     {
-        if (is_string($role)) 
-        {
-            return $this->roles->contains('name', $role);
-        }
-        return !! $this->roles->intersect($role)->count();
+        return $this->roles->contains('name', $roleName);
+    }
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->roles()->whereIn('name', $roles)->exists();
     }
 }

@@ -1,8 +1,16 @@
+import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import i18n from '@/i18n';
+import { Link, router } from '@inertiajs/react';
+import { Button } from '@material-tailwind/react';
+import { LogIn } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { route } from 'ziggy-js';
 
 export default function AppNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const { t } = useTranslation();
 
     // Fonction qui gère la recherche
     const handleSearch = () => {
@@ -10,12 +18,12 @@ export default function AppNavbar() {
 
         // Exemple d'appel API : envoyer la recherche
         fetch(`/api/search?query=${encodeURIComponent(searchTerm)}`)
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 console.log('Résultats:', data);
                 // TODO: stocker / afficher les résultats (via state, context, ou navigation)
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error('Erreur recherche:', err);
             });
     };
@@ -27,18 +35,34 @@ export default function AppNavbar() {
         }
     };
 
+    const cleanup = useMobileNavigation();
+
+    const handleLogout = () => {
+        cleanup();
+        router.flushAll();
+    };
 
     return (
         <div>
             <nav className="fixed w-full bg-transparent/50 shadow shadow-amber-50">
-                <div className="container px-6 py-3 mx-auto md:flex">
-                    <div className="flex items-center justify-between w-full">
+                <div className="container mx-auto items-center justify-center px-6 py-3 md:flex">
+                    {/* Langues */}
+                    <div className="mx-5 flex gap-3">
+                        <Button
+                            className="h-10 cursor-pointer bg-slate-800 p-2"
+                            onClick={() => {
+                                i18n.changeLanguage('en');
+                            }}
+                        >
+                            EN
+                        </Button>
+                        <Button className="h-10 cursor-pointer bg-slate-800 p-2" onClick={() => i18n.changeLanguage('fr')}>
+                            FR
+                        </Button>
+                    </div>
+                    <div className="flex items-center justify-between">
                         <a href="#">
-                            <img
-                                className="w-auto h-16 rounded-2xl"
-                                src="/Images/ChatGPT Image 28 mai 2025, 13_44_09 (1).png"
-                                alt="Logo"
-                            />
+                            <img className="h-16 w-auto rounded-2xl" src="/Images/ChatGPT Image 28 mai 2025, 13_44_09 (1).png" alt="Logo" />
                         </a>
 
                         {/* Mobile menu button */}
@@ -46,38 +70,30 @@ export default function AppNavbar() {
                             <button
                                 onClick={() => setIsOpen(!isOpen)}
                                 type="button"
-                                className="text-gray-500 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none"
+                                className="text-gray-500 hover:text-gray-600 focus:outline-none dark:text-gray-200 dark:hover:text-gray-400"
                                 aria-label="Toggle menu"
                             >
                                 {isOpen ? (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="w-6 h-6"
+                                        className="h-6 w-6"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                         strokeWidth={2}
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M6 18L18 6M6 6l12 12"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 ) : (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="w-6 h-6"
+                                        className="h-6 w-6"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                         strokeWidth={2}
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M4 8h16M4 16h16"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
                                     </svg>
                                 )}
                             </button>
@@ -88,37 +104,33 @@ export default function AppNavbar() {
                     <div
                         className={`${
                             isOpen ? 'block' : 'hidden'
-                        } absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-transparent/50 md:mt-0 md:p-0 md:top-0 md:relative md:flex md:items-center md:justify-between`}
+                        } absolute inset-x-0 z-20 w-full gap-5 bg-transparent/50 px-6 py-4 transition-all duration-300 ease-in-out md:relative md:top-0 md:mt-0 md:flex md:items-center md:justify-between md:p-0`}
                     >
-                        <div className="flex flex-col px-2 -mx-4 md:flex-row md:mx-10 md:py-0">
+                        <div className="-mx-4 flex flex-col px-2 md:mx-10 md:flex-row md:py-0">
                             <a
-                                href="#"
-                                className="px-2.5 py-2 text-gray-700 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 md:mx-2"
+                                href={route('home')}
+                                className="transform rounded-lg px-2.5 py-2 text-gray-700 transition-colors duration-300 hover:bg-gray-100 md:mx-2 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
-                                Home
+                                {t('navbar.home')}
                             </a>
                             <a
-                                href="#"
-                                className="px-2.5 py-2 text-gray-700 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 md:mx-2"
+                                href={route('about')}
+                                className="w-24 transform rounded-lg px-2.5 py-2 text-gray-700 transition-colors duration-300 hover:bg-gray-100 md:mx-2 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
-                                About
+                                {t('navbar.about')}
                             </a>
                             <a
-                                href="#"
-                                className="px-2.5 py-2 text-gray-700 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 md:mx-2"
+                                href={route('contact')}
+                                className="transform rounded-lg px-2.5 py-2 text-gray-700 transition-colors duration-300 hover:bg-gray-100 md:mx-2 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
-                                Contact
+                                {t('navbar.contact')}
                             </a>
                         </div>
 
                         {/* Search bar */}
                         <div className="relative mt-4 md:mt-0">
                             <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                <svg
-                                    className="w-5 h-5 text-gray-400"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                >
+                                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none">
                                     <path
                                         d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
                                         stroke="currentColor"
@@ -131,13 +143,24 @@ export default function AppNavbar() {
 
                             <input
                                 type="text"
-                                className="w-full py-2 pl-10 pr-4 text-gray-700 bg-white border rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 focus:ring-blue-300"
+                                className="focus:ring-opacity-40 w-full rounded-lg border bg-white py-2 pr-4 pl-10 text-gray-700 focus:border-blue-400 focus:ring focus:ring-blue-300 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:focus:border-blue-300"
                                 placeholder="Search"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />
                         </div>
+                        <Link
+                            className="flex cursor-pointer justify-end gap-1"
+                            method="post"
+                            href={route('logout')}
+                            as="button"
+                            onClick={handleLogout}
+                        >
+                            Log
+                            {/* <LogOut className="" />    */}
+                            <LogIn className="" />
+                        </Link>
                     </div>
                 </div>
             </nav>
