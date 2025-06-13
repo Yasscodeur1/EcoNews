@@ -155,5 +155,8 @@
 
     body {
         @apply bg-background text-foreground;
+        background-image: url('/images/rm378-02c.jpg');
+        background-size: cover;
+        background-position: center;
     }
 }

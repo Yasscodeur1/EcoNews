@@ -12,6 +12,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContactController;
+
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -27,7 +30,7 @@ Route::get('/about', function () {
 })->name('about');
 
 Route::get('/contact', function () {
-    return Inertia::render('contact');
+    return Inertia::render('contact/create');
 })->name('contact');
 
 Route::middleware('auth')->group(function () {
@@ -46,8 +49,16 @@ Route::middleware(['auth', 'role:lecteur'])->group(function () {
     Route::post('/articles/{article}/like', [LikeController::class, 'store']);
 });
 
+// ✅ Route publique pour afficher le formulaire
+Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
+
+// ✅ Route publique pour soumettre le formulaire
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// 🔒 Routes protégées pour la gestion en backoffice
 Route::middleware(['auth', 'role:auteur,webmaster,admin'])->group(function () {
-    // L’auteur peut créer/éditer/supprimer ses propres articles (contrôle dans le contrôleur)
+    // On exclut bien 'create' et 'store' ici pour ne pas les écraser
+    // Route::resource('contact', ContactController::class)->except(['create', 'store']);
     Route::resource('articles', ArticleController::class)->except(['index', 'show']);
 });
 
@@ -63,21 +74,13 @@ Route::middleware(['auth', 'role:webmaster'])->group(function () {
 });
 
 
-
 Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('dashboard', function () {
-        // $user = auth()->user();
-        // dd($user->roles);
-        return Inertia::render('dashboard');
-    })->name('dashboard');
-    
-    Route::resource('users', UserController::class)->except(['store', 'create']);
-    Route::resource('roles', RoleController::class);
-    Route::get('/stats', [StatsController::class, 'index']);
-});
+
+Route::middleware(['auth'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

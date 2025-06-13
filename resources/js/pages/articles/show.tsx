@@ -25,6 +25,11 @@ type Comment = {
     };
 };
 
+type Tag = {
+    id: number;
+    name: string;
+};
+
 type Article = {
     avatar: number;
     id: number;
@@ -38,6 +43,7 @@ type Article = {
     created_at: string;
     likes: Like[];
     comments: Comment[];
+    tags: Tag[];
     user: {
         name: string;
     };
@@ -49,7 +55,7 @@ interface ShowProps {
         user: {
             id: number;
             name: string;
-        };
+        } | null;
     };
 }
 
@@ -59,7 +65,12 @@ export default function Show({ article, auth }: ShowProps) {
         articleId: article.id,
     });
 
+    // const { tags } = usePage().props as unknown as { tags: Tag[] }; // Récupération des tags
+    const [form, setForm] = useState<{ tags: number[] }>({ tags: [] });
+
     const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+
+    // Add form state for tags selection
 
     const handleCommentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,7 +92,7 @@ export default function Show({ article, auth }: ShowProps) {
     };
 
     return (
-        <div className="mx-auto max-w-4xl p-6">
+        <div className="bg-background/10 inset-0 z-0 mx-auto max-w-4xl p-6 backdrop-blur-sm">
             <h1 className="mb-4 text-3xl font-bold">{article.title}</h1>
 
             <p className="mb-2 text-sm text-gray-600">
@@ -98,28 +109,34 @@ export default function Show({ article, auth }: ShowProps) {
                 <Heart className="h-5 w-5" />
                 <span>J’aime ({article.likes.length && article.avatar})</span>
             </button> */}
-            <button
-  onClick={toggleLike}
-  className="mt-4 flex items-center gap-2 text-red-600 transition hover:text-red-700"
->
-  <Heart className="h-5 w-5" />
-  <span>J’aime ({article.likes.length})</span>
+            <button onClick={toggleLike} className="mt-4 flex items-center gap-2 text-red-600 transition hover:text-red-700">
+                <Heart className="h-5 w-5" />
+                <span>J’aime ({article.likes.length})</span>
 
-  <div className="flex -space-x-2">
-    {article.likes.slice(0, 3).map((like) => (
-      <img
-        key={like.id}
-        src={like.user.avatar}
-        alt={like.user.name}
-        className="h-6 w-6 rounded-full border-2 border-white"
-      />
-    ))}
-    {article.likes.length > 3 && (
-      <span className="ml-2 text-sm text-gray-500">+{article.likes.length - 3}</span>
-    )}
-  </div>
-</button>
+                <div className="flex -space-x-2">
+                    {article.likes
+                        .slice(0, 3)
+                        .filter((like) => like && like.user)
+                        .map((like) => (
+                            <img key={like.id} src={like.user.avatar} alt={like.user.name} className="h-6 w-6 rounded-full border-2 border-white" />
+                        ))}
+                    {article.likes.length > 3 && <span className="ml-2 text-sm text-gray-500">+{article.likes.length - 3}</span>}
+                </div>
+            </button>
 
+            {/* Select tags - affichage des tags sélectionnables */}
+            {article.tags.length > 0 && (
+                <div className="mt-4">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-700">Tags associés :</h4>
+                    <div className="flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                            <span key={tag.id} className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                                #{tag.name}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Comment form */}
             <form onSubmit={handleCommentSubmit} className="mt-6">
@@ -137,35 +154,37 @@ export default function Show({ article, auth }: ShowProps) {
             </form>
 
             {/* Comment list */}
-            {article.comments.map((comment) => (
-                <div key={comment.id} className="border-t pt-2 text-sm text-gray-800 dark:text-gray-200">
-                    <strong>{comment.user.name}</strong> : {comment.content}
-                    {comment.user_id === auth.user.id && (
-                        <div className="mt-1 flex gap-2 text-xs text-gray-500">
-                            <button
-                                onClick={() => {
-                                    setData('body', comment.content);
-                                    setData('articleId', article.id);
-                                    setEditingCommentId(comment.id);
-                                }}
-                            >
-                                Modifier
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (confirm('Supprimer ce commentaire ?')) {
-                                        router.delete(route('comments.destroy', comment.id), {
-                                            preserveScroll: true,
-                                        });
-                                    }
-                                }}
-                            >
-                                Supprimer
-                            </button>
-                        </div>
-                    )}
-                </div>
-            ))}
+            {(article.comments || [])
+                .filter((comment): comment is Comment => !!comment && !!comment.user)
+                .map((comment) => (
+                    <div key={comment.id} className="border-t pt-2 text-sm text-gray-800 dark:text-gray-200">
+                        <strong>{comment.user.name}</strong> : {comment.content}
+                        {auth.user && comment.user_id === auth.user.id && (
+                            <div className="mt-1 flex gap-2 text-xs text-gray-500">
+                                <button
+                                    onClick={() => {
+                                        setData('body', comment.content);
+                                        setData('articleId', article.id);
+                                        setEditingCommentId(comment.id);
+                                    }}
+                                >
+                                    Modifier
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Supprimer ce commentaire ?')) {
+                                            router.delete(route('comments.destroy', comment.id), {
+                                                preserveScroll: true,
+                                            });
+                                        }
+                                    }}
+                                >
+                                    Supprimer
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ))}
 
             {/* Back to home */}
             <div className="mt-8">

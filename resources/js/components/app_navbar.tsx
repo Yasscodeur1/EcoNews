@@ -44,10 +44,10 @@ export default function AppNavbar() {
 
     return (
         <div>
-            <nav className="fixed w-full bg-transparent/50 shadow shadow-amber-50">
+            <nav className="fixed top-0 left-0 z-50 w-full bg-transparent/50 shadow shadow-amber-50">
                 <div className="container mx-auto items-center justify-center px-6 py-3 md:flex">
                     {/* Langues */}
-                    <div className="mx-5 flex gap-3">
+                    <div className="mx-5 hidden gap-3 md:flex">
                         <Button
                             className="h-10 cursor-pointer bg-slate-800 p-2"
                             onClick={() => {
@@ -66,7 +66,7 @@ export default function AppNavbar() {
                         </a>
 
                         {/* Mobile menu button */}
-                        <div className="flex lg:hidden">
+                        <div className="flex md:hidden">
                             <button
                                 onClick={() => setIsOpen(!isOpen)}
                                 type="button"
@@ -96,6 +96,7 @@ export default function AppNavbar() {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
                                     </svg>
                                 )}
+                                
                             </button>
                         </div>
                     </div>
@@ -120,12 +121,26 @@ export default function AppNavbar() {
                                 {t('navbar.about')}
                             </a>
                             <a
-                                href={route('contact')}
+                                href={route('contact.create')}
                                 className="transform rounded-lg px-2.5 py-2 text-gray-700 transition-colors duration-300 hover:bg-gray-100 md:mx-2 dark:text-gray-200 dark:hover:bg-gray-700"
                             >
                                 {t('navbar.contact')}
                             </a>
                         </div>
+
+                        <div className="mx-5 flex gap-3 md:hidden">
+                                    <Button
+                                        className="h-10 cursor-pointer bg-slate-800 p-2"
+                                        onClick={() => {
+                                            i18n.changeLanguage('en');
+                                        }}
+                                    >
+                                        EN
+                                    </Button>
+                                    <Button className="h-10 cursor-pointer bg-slate-800 p-2" onClick={() => i18n.changeLanguage('fr')}>
+                                        FR
+                                    </Button>
+                                </div>
 
                         {/* Search bar */}
                         <div className="relative mt-4 md:mt-0">

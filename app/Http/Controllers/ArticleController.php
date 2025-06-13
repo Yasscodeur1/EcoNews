@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,7 @@ class ArticleController extends Controller
         return Inertia::render('articles/create', [
             'articles' => $articles,
             'categories' => Category::all(),
+            'tags' => Tag::all(),
             'auth' => [
                 'user' => auth()->user(),
             ],
@@ -52,6 +54,9 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,published',
             'category_id' => 'required|exists:categories,id',
             'is_featured' => 'nullable|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+
         ]);
         $article = Article::create([
             'title' => $request->title,
@@ -63,6 +68,11 @@ class ArticleController extends Controller
             'is_featured' => $request->is_featured ?? false,
             'user_id' => auth()->id(),
         ]);
+
+        if ($request->filled('tags')) {
+            $article->tags()->sync($request->tags);
+        }
+
 
         return redirect()->route('articles.index')->with('success', 'Article créé avec succès.');
     }
@@ -76,6 +86,10 @@ class ArticleController extends Controller
 
         return Inertia::render('articles/show', [
             'article' => $article,
+            'auth' => [
+            'user' => auth()->user(),
+                ],
+            // 'tags' => Tag::all(),
         ]);
     }
 
