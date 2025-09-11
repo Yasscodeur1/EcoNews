@@ -3,7 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
+
 
 class ArticleController extends Controller
 {
@@ -13,9 +19,8 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::all();
-
-        return inertia::render('articles/index', [
-            'articles' => $article
+        return Inertia::render('articles/index', [
+            'articles' => $articles
         ]);
     }
 
@@ -24,7 +29,16 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        return inertia::render('articles/create');
+        $articles = Article::with(['category', 'likes', 'comments.user'])->get();
+        $categories = Category::all();
+        return Inertia::render('articles/create', [
+            'articles' => $articles,
+            'categories' => Category::all(),
+            'tags' => Tag::all(),
+            'auth' => [
+                'user' => auth()->user(),
+            ],
+        ]);
     }
 
     /**
@@ -32,27 +46,66 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validated([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:articles',
-            'content' => 'required|text|'
+            'slug' => 'required|string|max:255|unique:articles,slug',
+            'content' => 'required|string',
+            'image_path' => 'nullable|string',
+            'status' => 'required|in:draft,published',
+            'category_id' => 'required|exists:categories,id',
+            'is_featured' => 'nullable|boolean',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+
         ]);
+        $article = Article::create([
+            'title' => $request->title,
+            'slug' => $request->slug,
+            'content' => $request->content,
+            'image_path' => $request->image_path,
+            'status' => $request->status,
+            'category_id' => $request->category_id,
+            'is_featured' => $request->is_featured ?? false,
+            'user_id' => auth()->id(),
+        ]);
+
+        if ($request->filled('tags')) {
+            $article->tags()->sync($request->tags);
+        }
+
+
+        return redirect()->route('articles.index')->with('success', 'Article créé avec succès.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Article $article)
+    public function show($slug)
     {
-        //
+        $article = Article::with(['category', 'tags', 'user', 'likes', 'comments.user'])->where('slug', $slug)->firstOrFail();
+
+        return Inertia::render('articles/show', [
+            'article' => $article,
+            'auth' => [
+            'user' => auth()->user(),
+                ],
+            // 'tags' => Tag::all(),
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Article $article)
+    public function edit($id)
     {
-        //
+        $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux modifier que tes propres articles.");
+        }
+
+        // sinon afficher la vue d'édition
+        return Inertia::render('articles/edit', compact('article'));
     }
 
     /**
@@ -60,7 +113,16 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
-        //
+        // $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux modifier que tes propres articles.");
+        }
+
+        // valider et mettre à jour
+        $article->update($request->all());
+
+        return redirect()->route('articles.index');
     }
 
     /**
@@ -68,6 +130,14 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
-        //
+        $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux supprimer que tes propres articles.");
+        }
+
+        $article->delete();
+
+        return redirect()->route('articles.index');
     }
 }

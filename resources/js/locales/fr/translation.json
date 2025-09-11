@@ -1,0 +1,11 @@
+{
+  "welcome": "Bienvenue sur notre site !",
+  "about": "À propos de nous",
+  "navbar": {
+    "home": "Accueil",
+    "about": "À propos",
+    "contact": "Contact"
+  }
+}
+
+

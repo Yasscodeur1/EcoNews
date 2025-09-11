@@ -11,7 +11,7 @@ class Article extends Model
     protected $fillable = [
         'title',
         'slug',
-        'slug',
+        'content',
         'image_path',
         'user_id',
         'category_id',
@@ -56,6 +56,6 @@ class Article extends Model
 
     public function likes() 
     {
-        return $this->hasMany(Like::class);
+        return $this->hasMany(Like::class)->with('user');
     }
 }
