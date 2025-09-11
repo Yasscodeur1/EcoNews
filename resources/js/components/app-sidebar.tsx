@@ -9,7 +9,7 @@ import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'EcoNews',
         href: '/dashboard',
         icon: LayoutGrid,
     },
@@ -18,12 +18,12 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        href: 'https://github.com/Yasscodeur1/EcoNews.git',
         icon: Folder,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        title: 'Url_Projet',
+        href: 'http://127.0.0.1:8000/dashboard',
         icon: BookOpen,
     },
 ];

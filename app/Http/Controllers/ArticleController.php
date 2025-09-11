@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+
 
 class ArticleController extends Controller
 {
@@ -32,11 +34,29 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validated([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:articles',
-            'content' => 'required|text|'
+            'slug' => 'required|string|max:255|unique:articles,slug',
+            'content' => 'required|string',
+            'image_path' => 'nullable|string',
+            'user_id' => 'required|exists:users,id',
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|in:draft,published',
+            'is_featured' => 'nullable|boolean',
         ]);
+        $article = Article::create([
+            'title' => $request->title,
+            'slug' => $request->slug,
+            'content' => $request->content,
+            'image_path' => $request->image_path,
+            'status' => $request->status,
+            'user_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'message' => 'Article created successfully.',
+            'article' => $article,
+        ], 201);
     }
 
     /**
@@ -44,15 +64,22 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        //
+        return Inertia::render('articles/show');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Article $article)
+    public function edit($id)
     {
-        //
+        $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux modifier que tes propres articles.");
+        }
+
+        // sinon afficher la vue d'édition
+        return Inertia::render('articles/edit', compact('article'));
     }
 
     /**
@@ -60,7 +87,16 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
-        //
+        $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux modifier que tes propres articles.");
+        }
+
+        // valider et mettre à jour
+        $article->update($request->all());
+
+        return redirect()->route('articles.index');
     }
 
     /**
@@ -68,6 +104,14 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
-        //
+        $article = Article::findOrFail($id);
+
+        if (auth()->user()->role->name === 'auteur' && $article->user_id !== auth()->id()) {
+            abort(403, "Tu ne peux supprimer que tes propres articles.");
+        }
+
+        $article->delete();
+
+        return redirect()->route('articles.index');
     }
 }
